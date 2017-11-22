@@ -144,6 +144,10 @@ class EnvModel(object):
     def is_valid(self):
         return len(self.errors) <= 0
 
+    def list_names(self):
+        fields = [getattr(self, field) for field in self._fields]
+        return [(field.name, field.default) for field in fields]
+
     def update(self):
         """
         Update values from env again.
