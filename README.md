@@ -1,6 +1,7 @@
 ENV ORM
 ---------------
 
+Build status: [![CircleCI](https://circleci.com/gh/winkidney/envorm.svg?style=svg)](https://circleci.com/gh/winkidney/envorm)
 
 **Environment-variables as config made easy.** 
 
