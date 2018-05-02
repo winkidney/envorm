@@ -148,6 +148,18 @@ class EnvModel(object):
         fields = [getattr(self, field) for field in self._fields]
         return [(field.name, field.default) for field in fields]
 
+    @property
+    def doc(self):
+        lines = []
+        tpl_line = '%s=%s'
+        names = self.list_names()
+        for name, default in names:
+            if default is None:
+                default = ''
+            line = tpl_line % (name, default)
+            lines.append(line)
+        return '\n'.join(lines)
+
     def update(self):
         """
         Update values from env again.

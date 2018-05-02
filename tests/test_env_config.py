@@ -185,3 +185,21 @@ class TestEnvModel(object):
         settings = Model()
 
         assert settings.is_valid() is False
+
+    def test_should_output_doc(self):
+        class Model(orm.EnvModel):
+            example = orm.StringField(
+                "STRING_EXAMPLE",
+                required=True,
+            )
+            example1 = orm.StringField(
+                "STRING_EXAMPLE_1",
+                required=True,
+                default='hi'
+            )
+
+        settings = Model()
+
+        doc = "STRING_EXAMPLE=\n" + "STRING_EXAMPLE_1=hi"
+        
+        assert settings.doc == doc
