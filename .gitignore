@@ -1,4 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
+# Ignore new pytest files
+.pytest_cache
 # I have no idea
 .idea
 

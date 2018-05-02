@@ -15,6 +15,12 @@ It helps a lot especially you prefers to use docker as your app runner.
 + ORM-like interface(or wtforms-like)
 + validation included
 + Auto type-conversion
++ Doc/Example config for ORM object
+
+## ChangeLog
+
++ Wed May  2 01:56:54 PDT 2018 - Add doc/example config env output 
+
 
 ## Install
 
@@ -58,5 +64,8 @@ settings.update()
 # if you want to provide an interface to show
 # what config is needed and show its default value
 settings.list_names()
+
+# Print config doc (or just copy it as example config file)
+print(settings.doc())
 
 ```
