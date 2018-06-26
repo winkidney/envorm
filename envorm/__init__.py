@@ -59,7 +59,7 @@ class BaseField(object):
         else:
             if self._required:
                 raise ValueRequired(
-                    "Value of environ %s is required.",
+                    "Value of environ %s is required." % self.name,
                     name=self.name,
                 )
         return self.default
@@ -147,6 +147,13 @@ class EnvModel(object):
     def list_names(self):
         fields = [getattr(self, field) for field in self._fields]
         return [(field.name, field.default) for field in fields]
+
+    def as_dict(self):
+        fields = self._fields
+        return {
+            field: getattr(self, field).value
+            for field in fields
+        }
 
     @property
     def doc(self):
