@@ -29,6 +29,19 @@ class ValueRequired(ValueError):
         }
 
 
+class ValidationError(ValueError):
+    def __init__(self, *args, **kwargs):
+        super(ValidationError, self).__init__(*args)
+        self.name = kwargs.pop("name")
+        self.detail = kwargs.pop("detail")
+
+    def as_dict(self):
+        return {
+            "field": self.name,
+            "detail": self.detail,
+        }
+
+
 class NotInited(object):
     pass
 
@@ -42,6 +55,9 @@ class BaseField(object):
         self.default = default
         self._required = required
         self._cached_value = NotInited()
+
+    def validate(self):
+        return None
 
     def raise_error(self, value):
         raise ConvertError(
@@ -82,6 +98,23 @@ class BaseField(object):
 class StringField(BaseField):
 
     type_name = "string"
+
+    def __init__(self, name, default=None, required=False, choices=None):
+        super(StringField, self).__init__(name=name, default=default, required=required)
+        self.choices = choices
+
+    def validate(self):
+        super(StringField, self).validate()
+        if self.choices is None:
+            return
+        if self.value not in self.choices:
+            raise ValidationError(
+                name=self.name,
+                detail={
+                    "message": "should be one of %s, got %s"
+                               % (self.choices, self.value),
+                }
+            )
 
 
 class IntField(BaseField):
@@ -135,10 +168,12 @@ class EnvModel(object):
 
     def _build_data(self):
         self.errors = []
-        for field in self._fields:
+        for field_name in self._fields:
             try:
-                getattr(self.__class__, field).update()
-            except (ConvertError, ValueRequired) as e:
+                field = getattr(self.__class__, field_name)
+                field.update()
+                field.validate()
+            except (ConvertError, ValueRequired, ValidationError) as e:
                 self.errors.append(e.as_dict())
 
     def is_valid(self):
@@ -146,7 +181,10 @@ class EnvModel(object):
 
     def list_names(self):
         fields = [getattr(self, field) for field in self._fields]
-        return [(field.name, field.default) for field in fields]
+        return [
+            (field, field.name, field.default)
+            for field in fields
+        ]
 
     def as_dict(self):
         fields = self._fields
@@ -155,17 +193,25 @@ class EnvModel(object):
             for field in fields
         }
 
-    @property
-    def doc(self):
+    def get_doc(self, use_default=True):
         lines = []
         tpl_line = '%s=%s'
         names = self.list_names()
-        for name, default in names:
+        for field, name, default in names:
             if default is None:
                 default = ''
+            if not use_default:
+                default = field.value
             line = tpl_line % (name, default)
             lines.append(line)
         return '\n'.join(lines)
+
+    def describe(self):
+        return self.get_doc(use_default=False)
+
+    @property
+    def doc(self):
+        return self.get_doc()
 
     def update(self):
         """

@@ -112,6 +112,12 @@ def test_should_string_field_works(set_base_env):
     assert model.value == "Result"
 
 
+def test_should_string_field_choices_validation(set_base_env):
+    field = orm.StringField("STRING_EXAMPLE", choices=["field-value"])
+    with pytest.raises(orm.ValidationError):
+        field.validate()
+
+
 class TestIntField(object):
     def test_should_non_int_raise_error(self, set_base_env):
         model = orm.IntField("STRING_EXAMPLE")

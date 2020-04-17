@@ -10,7 +10,7 @@ install_requires = []
 
 setup(
     name='envorm',
-    version='0.0.4',
+    version='0.0.5',
     packages=find_packages(here, exclude=['tests']),
     url='https://github.com/winkidney/envorm',
     license='MIT',
