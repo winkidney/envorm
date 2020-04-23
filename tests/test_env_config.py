@@ -14,6 +14,8 @@ def set_base_env(request):
         ("INT_EXAMPLE", "1"),
         ("FLOAT_EXAMPLE", "1.1"),
         ("BOOLEAN_EXAMPLE", "true"),
+        ("LIST_EXAMPLE_SINGLE", "Result"),
+        ("LIST_EXAMPLE_MULTIPLE", "1,2,3"),
     )
     for key, value in values:
         os.environ[key] = value
@@ -149,6 +151,29 @@ class TestBooleanField(object):
     def test_should_return_int(self, set_base_env):
         model = orm.BooleanField("BOOLEAN_EXAMPLE")
         assert isinstance(model.value, bool)
+
+
+class TestListField(object):
+    def test_should_raise_type_conv_error(self, set_base_env):
+        model = orm.ListField("LIST_EXAMPLE_SINGLE", type_factory=int)
+        with pytest.raises(orm.ConvertError):
+            model.value
+
+
+        def factory(v):
+            raise ValueError
+
+        model = orm.ListField("LIST_EXAMPLE_MULTIPLE", type_factory=factory)
+        with pytest.raises(orm.ConvertError):
+            model.value
+
+    def test_should_return_int(self, set_base_env):
+        model = orm.ListField("LIST_EXAMPLE_SINGLE")
+        assert isinstance(model.value, list)
+
+        model = orm.ListField("LIST_EXAMPLE_MULTIPLE", type_factory=int)
+        assert isinstance(model.value, list)
+        assert isinstance(model.value[0], int)
 
 
 class TestEnvModel(object):

@@ -117,6 +117,25 @@ class StringField(BaseField):
             )
 
 
+class ListField(BaseField):
+
+    type_name = "string"
+
+    def __init__(self, name, type_factory=str, separator=",", default=None, required=False):
+        super(ListField, self).__init__(name=name, default=default, required=required)
+        assert callable(type_factory)
+        self._separator = separator
+        self._type_factory = type_factory
+
+    def convert(self, value):
+        value = value.split(self._separator)
+        try:
+            value = [self._type_factory(x) for x in value]
+        except ValueError:
+            self.raise_error(value)
+        return value
+
+
 class IntField(BaseField):
 
     type_name = "integer"
